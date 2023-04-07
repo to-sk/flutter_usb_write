@@ -267,36 +267,34 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
     return dev;
   }
 
-  private void listDevices(Result result, boolean allowAcquirePermission) {
-    final AcquirePermissionCallback cb = new AcquirePermissionCallback() {
-      @java.lang.Override
-      public void onSuccess(UsbDevice device) {
-        listDevices(result, false);
-      }
-
-      @java.lang.Override
-      public void onFailed(UsbDevice device) {
-        result.error("LIST_DEVICES_ERROR", "Could not get permission.", null);
-      }
-    };
-
-    try {
-      Map<String, UsbDevice> devices = m_Manager.getDeviceList();
-      if (devices == null) {
-        result.error("LIST_DEVICES_ERROR", "Could not get USB device list.", null);
-        return;
-      }
-      List<HashMap<String, Object>> transferDevices = new ArrayList<>();
-      for (UsbDevice device : devices.values()) {
-        if (allowAcquirePermission) {
-          acquirePermissions(device, cb);
-        }
-        transferDevices.add(serializeDevice(device));
-      }
-      result.success(transferDevices);
-    } catch (java.lang.SecurityException e) {
-      acquirePermissions(device, cb);
+  private void listDevices(Result result) {
+    Map<String, UsbDevice> devices = m_Manager.getDeviceList();
+    if (devices == null) {
+      result.error("LIST_DEVICES_ERROR", "Could not get USB device list.", null);
+      return;
     }
+    List<HashMap<String, Object>> transferDevices = new ArrayList<>();
+    for (UsbDevice device : devices.values()) {
+      if (device != null) {
+        final OpenDeviceCallback cb = new OpenDeviceCallback() {
+
+          @Override
+          public void onSuccess(UsbDevice device) {
+            result.success(serializeDevice(device));
+          }
+
+          @Override
+          public void onFailed(UsbDevice device, String errorCode, String error) {
+            result.error(errorCode, error, null);
+          }
+        };
+        this.openDevice(device, true, cb);
+        transferDevices.add(serializeDevice(device));
+        continue;
+      }
+      result.error("DEVICE_NOT_FOUND_ERROR", "No such device", null);
+    }
+    result.success(transferDevices);
   }
 
   private BroadcastReceiver createUsbStateChangeReceiver(final EventSink events) {
