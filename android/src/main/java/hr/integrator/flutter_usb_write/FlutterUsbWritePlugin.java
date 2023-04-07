@@ -293,7 +293,7 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
           Log.d(TAG, "ACTION_USB_PERMISSION");
           synchronized (this) {
             if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-              if(device != null){
+              if (events != null) {
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 HashMap<String, Object> msg = serializeDevice(device);
                 msg.put("event", ACTION_USB_ATTACHED);
@@ -301,7 +301,7 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
               }
             }
             else {
-              Log.d(TAG, "permission denied for device " + device);
+              Log.d(TAG, "permission denied for no device");
             }
           }
         }
