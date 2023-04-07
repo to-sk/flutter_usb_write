@@ -287,7 +287,7 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
         return;
       }
       List<HashMap<String, Object>> transferDevices = new ArrayList<>();
-      for (UsbDevice device : devices.values()) {
+      for (UsbDevice device : devices) {
         acquirePermissions(device, cb);
         transferDevices.add(serializeDevice(device));
       }
