@@ -271,14 +271,16 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
     final AcquirePermissionCallback cb = new AcquirePermissionCallback() {
       @java.lang.Override
       public void onSuccess(UsbDevice device) {
-
+        listDevices(result);
       }
 
       @java.lang.Override
       public void onFailed(UsbDevice device) {
-
+        result.error("LIST_DEVICES_ERROR", "Could not get permission.", null);
       }
+    };
 
+    try {
       Map<String, UsbDevice> devices = m_Manager.getDeviceList();
       if (devices == null) {
         result.error("LIST_DEVICES_ERROR", "Could not get USB device list.", null);
@@ -290,6 +292,8 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
         transferDevices.add(serializeDevice(device));
       }
       result.success(transferDevices);
+    } catch (java.lang.SecurityException e) {
+      acquirePermissions(device, cb);
     }
   }
 
