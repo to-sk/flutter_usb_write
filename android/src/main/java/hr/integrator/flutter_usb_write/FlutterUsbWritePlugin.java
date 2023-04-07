@@ -289,10 +289,12 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
           }
         };
         this.openDevice(device, true, cb);
+        close();
         transferDevices.add(serializeDevice(device));
-        continue;
       }
-      result.error("DEVICE_NOT_FOUND_ERROR", "No such device", null);
+      else {
+        result.error("DEVICE_NOT_FOUND_ERROR", "No such device", null);
+      }
     }
     result.success(transferDevices);
   }
