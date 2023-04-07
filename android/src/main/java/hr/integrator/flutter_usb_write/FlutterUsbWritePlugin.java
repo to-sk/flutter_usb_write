@@ -274,7 +274,7 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
       return;
     }
     result.error("OK", "List devices ok.", null);
-    List<HashMap<String, Object>> transferDevices = new ArrayList<>();
+    /*List<HashMap<String, Object>> transferDevices = new ArrayList<>();
     result.error("OK", "Transfer devices ok.", null);
     for (UsbDevice device : devices.values()) {
       transferDevices.add(serializeDevice(device));
@@ -282,7 +282,8 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
     }
     result.error("OK", "After loop ok.", null);
     result.success(transferDevices);
-    result.error("OK", "After success.", null);
+    result.error("OK", "After success.", null);*/
+    result.success(devices);
   }
 
   private BroadcastReceiver createUsbStateChangeReceiver(final EventSink events) {
