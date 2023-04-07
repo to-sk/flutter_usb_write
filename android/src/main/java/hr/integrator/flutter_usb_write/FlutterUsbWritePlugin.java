@@ -273,18 +273,38 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
       result.error("LIST_DEVICES_ERROR", "Could not get USB device list.", null);
       return;
     }
+    result.error("OK", "List devices ok.", null);
     List<HashMap<String, Object>> transferDevices = new ArrayList<>();
-
+    result.error("OK", "Transfer devices ok.", null);
     for (UsbDevice device : devices.values()) {
       transferDevices.add(serializeDevice(device));
+      result.error("OK", "Add transfer devices ok.", null);
     }
+    result.error("OK", "After loop ok.", null);
     result.success(transferDevices);
+    result.error("OK", "After success.", null);
   }
 
   private BroadcastReceiver createUsbStateChangeReceiver(final EventSink events) {
     return new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
+          Log.d(TAG, "ACTION_USB_PERMISSION");
+          synchronized (this) {
+            if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+              if(device != null){
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                HashMap<String, Object> msg = serializeDevice(device);
+                msg.put("event", ACTION_USB_ATTACHED);
+                events.success(msg);
+              }
+            }
+            else {
+              Log.d(TAG, "permission denied for device " + device);
+            }
+          }
+        }
         if (intent.getAction().equals(ACTION_USB_ATTACHED)) {
           Log.d(TAG, "ACTION_USB_ATTACHED");
           if (events != null) {
