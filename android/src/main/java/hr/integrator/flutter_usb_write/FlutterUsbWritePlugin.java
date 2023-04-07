@@ -82,7 +82,7 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     switch (call.method) {
     case "listDevices":
-      listDevices(result, true);
+      listDevices(result);
       break;
     case "open":
       int vid = (int) (call.argument("vid") == null ? 0 : call.argument("vid"));
