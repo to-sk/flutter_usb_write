@@ -82,7 +82,7 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     switch (call.method) {
     case "listDevices":
-      listDevices(result);
+      listDevices(result, true);
       break;
     case "open":
       int vid = (int) (call.argument("vid") == null ? 0 : call.argument("vid"));
@@ -267,11 +267,11 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
     return dev;
   }
 
-  private void listDevices(Result result) {
+  private void listDevices(Result result, boolean allowAcquirePermission) {
     final AcquirePermissionCallback cb = new AcquirePermissionCallback() {
       @java.lang.Override
       public void onSuccess(UsbDevice device) {
-        listDevices(result);
+        listDevices(result, false);
       }
 
       @java.lang.Override
@@ -288,7 +288,9 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
       }
       List<HashMap<String, Object>> transferDevices = new ArrayList<>();
       for (UsbDevice device : devices.values()) {
-        acquirePermissions(device, cb);
+        if (allowAcquirePermission) {
+          acquirePermissions(device, cb);
+        }
         transferDevices.add(serializeDevice(device));
       }
       result.success(transferDevices);
