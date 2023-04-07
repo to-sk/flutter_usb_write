@@ -268,22 +268,29 @@ public class FlutterUsbWritePlugin implements FlutterPlugin, MethodCallHandler, 
   }
 
   private void listDevices(Result result) {
-    Map<String, UsbDevice> devices = m_Manager.getDeviceList();
-    if (devices == null) {
-      result.error("LIST_DEVICES_ERROR", "Could not get USB device list.", null);
-      return;
+    final AcquirePermissionCallback cb = new AcquirePermissionCallback() {
+      @java.lang.Override
+      public void onSuccess(UsbDevice device) {
+
+      }
+
+      @java.lang.Override
+      public void onFailed(UsbDevice device) {
+
+      }
+
+      Map<String, UsbDevice> devices = m_Manager.getDeviceList();
+      if (devices == null) {
+        result.error("LIST_DEVICES_ERROR", "Could not get USB device list.", null);
+        return;
+      }
+      List<HashMap<String, Object>> transferDevices = new ArrayList<>();
+      for (UsbDevice device : devices.values()) {
+        acquirePermissions(device, cb);
+        transferDevices.add(serializeDevice(device));
+      }
+      result.success(transferDevices);
     }
-    result.error("OK", "List devices ok.", null);
-    /*List<HashMap<String, Object>> transferDevices = new ArrayList<>();
-    result.error("OK", "Transfer devices ok.", null);
-    for (UsbDevice device : devices.values()) {
-      transferDevices.add(serializeDevice(device));
-      result.error("OK", "Add transfer devices ok.", null);
-    }
-    result.error("OK", "After loop ok.", null);
-    result.success(transferDevices);
-    result.error("OK", "After success.", null);*/
-    result.success(devices);
   }
 
   private BroadcastReceiver createUsbStateChangeReceiver(final EventSink events) {
